@@ -8,6 +8,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Reader;
+import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -16,7 +17,10 @@ import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -33,6 +37,7 @@ public class MainActivity extends ActionBarActivity {
    private EditText et_input;
    private boolean connected = false;
    private static final int SERVER_PORT = 8080;
+   App appState = ((App)this.getApplication());
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -76,7 +81,9 @@ public class MainActivity extends ActionBarActivity {
 		toast.show();
         Thread cThread = new Thread(new ClientThread());
         cThread.start();
+        Intent nextScreen = new Intent(getApplicationContext(), LoginActivity.class);
     }
+
 
 	/**
 	 * A placeholder fragment containing a simple view.
@@ -95,21 +102,21 @@ public class MainActivity extends ActionBarActivity {
 		}
 	};
 	
+	@SuppressWarnings("serial")
 	public class ClientThread implements Runnable {
-		 
+		 Socket socket = appState.getSocket();
         public void run() {  	
             try {
                 InetAddress serverAddr = InetAddress.getByName(et_input.getText().toString());
                 Log.d("ClientActivity", et_input.getText().toString());
                 Log.d("ClientActivity", "C: Connecting...");
-                Socket socket = new Socket(serverAddr, SERVER_PORT);
+                socket = new Socket(serverAddr, SERVER_PORT);
                 connected = true;
                 while (connected) {
                     try {
                         Log.d("ClientActivity", "C: Sending command.");
                         PrintWriter out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket
                                     .getOutputStream())), true);
-                        out.println("Hey Server!");
                         Log.d("ClientActivity", "C: Sent.");
                         BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                         if (br.readLine() != null)
@@ -127,5 +134,5 @@ public class MainActivity extends ActionBarActivity {
                 connected = false;
             }
         }
-    }
+	}
 }
