@@ -15,7 +15,7 @@
         android:textSize="50px" />
 
     <EditText
-        android:id="@+id/EditText01"
+        android:id="@+id/uname"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
