@@ -74,6 +74,7 @@ public class MainActivity extends ActionBarActivity {
         Intent loginScreen = new Intent(getApplicationContext(), LoginActivity.class);
         while(true){
         	if(appState.getResponse().trim().compareTo("ok") == 0){
+                Log.d("ClientActivity", "C: Got ack. Waiting for login.");
         		startActivity(loginScreen);
         		break;
         	}
@@ -116,10 +117,7 @@ public class MainActivity extends ActionBarActivity {
                 connected = true;
                 while (connected) {
                     try {
-                        Log.d("ClientActivity", "C: Sending command.");
-                        PrintWriter out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket
-                                    .getOutputStream())), true);
-                        Log.d("ClientActivity", "C: Sent.");
+                        Log.d("ClientActivity", "C: Waiting for ack.");
                         BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                         if (br.readLine() != null)
                         	{

@@ -6,14 +6,14 @@ import android.app.Application;
 
 public class App extends Application {
 	
-	private Socket socket;
+	private static Socket socket;
 	private String response;
 	
 	public Socket getSocket() {
 		return socket;
 	}
 	public void setSocket(Socket socket) {
-		this.socket = socket;
+		App.socket = socket;
 	}
 	public String getResponse() {
 		return response;

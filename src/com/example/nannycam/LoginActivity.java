@@ -9,6 +9,7 @@ import java.security.NoSuchAlgorithmException;
 
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -31,22 +32,27 @@ public class LoginActivity extends ActionBarActivity {
 		try {
 			out = new PrintWriter(socket.getOutputStream());
 	    	out.print("USER " + user);
+            Log.d("ClientActivity", "C: Sent Username.");
 
 	        while(true){
 	        	if(appState.getResponse().trim().compareTo("ok") == 0){
+                    Log.d("ClientActivity", "C: Got ack, sending pw.");
 	        		break;
 	        	}
 	        }
 	        
 	        out.print("PASS " + md5(pass));
+            Log.d("ClientActivity", "C: pw sent..");
 	        
 	        while(true){
 	        	if(appState.getResponse().trim().compareTo("ok") == 0){
 	        		//TODO: add transition to image screen
+                    Log.d("ClientActivity", "C: Got ack. Sending command to stream.");
 	        		break;
 	        	}
 	        }
 		} catch (IOException e) {
+            Log.d("ClientActivity", "C: Blew up.");
         	Toast.makeText(getApplicationContext(), "Something went wrong",Toast.LENGTH_SHORT).show();
 		}
     	
