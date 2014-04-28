@@ -7,6 +7,7 @@ import java.net.Socket;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
@@ -46,7 +47,8 @@ public class LoginActivity extends ActionBarActivity {
 	        
 	        while(true){
 	        	if(appState.getResponse().trim().compareTo("ok") == 0){
-	        		//TODO: add transition to image screen
+	        		Intent viewScreen = new Intent(getApplicationContext(), ViewActivity.class);
+	        		startActivity(viewScreen);
                     Log.d("ClientActivity", "C: Got ack. Sending command to stream.");
 	        		break;
 	        	}

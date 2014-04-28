@@ -5,5 +5,7 @@
     <string name="action_settings">Settings</string>
     <string name="ip_placeholder">Enter IP Address</string>
     <string name="connect_placeholder">Connect to Kinect</string>
+    <string name="title_activity_view">ViewActivity</string>
+    <string name="hello_world">Hello world!</string>
 
 </resources>
