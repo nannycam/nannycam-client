@@ -16,10 +16,12 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 public class LoginActivity extends ActionBarActivity {
-	App appState = ((App)this.getApplication());
+	App appState;
 	Socket socket = appState.getSocket();
 	
 	public void onCreate(Bundle savedInstanceState) {
+
+    	appState = ((App)this.getApplication());
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login_screen);
 	}
@@ -55,7 +57,7 @@ public class LoginActivity extends ActionBarActivity {
 	        }
 		} catch (IOException e) {
             Log.d("ClientActivity", "C: Blew up.");
-        	Toast.makeText(getApplicationContext(), "Something went wrong",Toast.LENGTH_SHORT).show();
+        	Toast.makeText(appState.getContext(), "Something went wrong",Toast.LENGTH_SHORT).show();
 		}
     	
     }

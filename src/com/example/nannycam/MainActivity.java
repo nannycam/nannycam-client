@@ -1,14 +1,14 @@
 package com.example.nannycam;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.Socket;
 
-import android.content.Context;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
@@ -18,13 +18,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
-import android.widget.Toast;
 
 public class MainActivity extends ActionBarActivity {
    private EditText et_input;
-   private boolean connected = false;
    private static final int SERVER_PORT = 8080;
-   App appState = ((App)this.getApplication());
+   App appState;
+   Thread cThread;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -35,6 +34,9 @@ public class MainActivity extends ActionBarActivity {
 			getSupportFragmentManager().beginTransaction()
 					.add(R.id.container, new PlaceholderFragment()).commit();
 		}
+    	appState = ((App)getApplication());
+    	appState.setContext(getApplicationContext()); 
+    	cThread = new Thread(new ClientThread());
 	}
 
 	@Override
@@ -58,16 +60,7 @@ public class MainActivity extends ActionBarActivity {
 	}
 	
     public void connect(View v) {
-		et_input = (EditText) findViewById(R.id.ipInput);
-		Log.d("et_input", et_input.getText().toString());
-		Context context = getApplicationContext();
-		CharSequence text = "Connected!  See log";
-		int duration = Toast.LENGTH_SHORT;
-
-		Toast toast = Toast.makeText(context, text, duration);
-		toast.show();
-        Thread cThread = new Thread(new ClientThread());
-        cThread.start();
+        cThread.run();
         Intent loginScreen = new Intent(getApplicationContext(), LoginActivity.class);
         while(true){
         	if(appState.getResponse().trim().compareTo("ok") == 0){
@@ -97,39 +90,45 @@ public class MainActivity extends ActionBarActivity {
 	};
 
 	public class ClientThread implements Runnable {
-		Socket socket = appState.getSocket();
         public void run() {  	
-            try {
-                InetAddress serverAddr = InetAddress.getByName(et_input.getText().toString());
+            InetAddress serverAddr;
+            try { 
+            	serverAddr = InetAddress.getByName(((EditText)findViewById(R.id.ipInput)).toString());
                 Log.d("ClientActivity", et_input.getText().toString());
                 Log.d("ClientActivity", "C: Connecting...");
-                try{
-                	socket = new Socket(serverAddr, SERVER_PORT);
-                    connected = true;
-                }
-                catch(IOException e){
-                	Toast.makeText(getApplicationContext(), "Not a valid server",Toast.LENGTH_SHORT).show();
-                	connected = false;
-                }
-                while (connected) {
-                    try {
-                        Log.d("ClientActivity", "C: Waiting for ack.");
-                        BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                        if (br.readLine() != null)
-                        	{
-                        	appState.setResponse(br.readLine());
-                        	Log.d("ClientActivity", appState.getResponse());
-                        	}
-                    } catch (Exception e) {
-                        Log.e("ClientActivity", "S: Error", e);
-                    }
-                }
-                socket.close();
-                Log.d("ClientActivity", "C: Closed.");
-            } catch (Exception e) {
-                Log.e("ClientActivity", "C: Error", e);
-                connected = false;
+        	} catch (Exception e) {
+            	/*new AlertDialog.Builder(MainActivity.this).setTitle("IP Address")
+            	.setMessage("Invalid IP address!")
+            	.setCancelable(false)
+            	.show();*/
+        		Log.e("ClientActivity", "C: Error", e);
+        		serverAddr = null;
+        	}
+            if(serverAddr != null){
+	            try{
+	            	appState.setSocket(new Socket(serverAddr, SERVER_PORT));
+	            }
+	            catch(Exception e){
+	            	new AlertDialog.Builder(MainActivity.this).setTitle("IP Address")
+	            	.setMessage("Invalid IP address!")
+	            	.setCancelable(false)
+	            	.show();
+	            }
             }
+            while (appState.getSocket().isConnected() && !appState.getSocket().isClosed()) {
+                try {
+                    Log.d("ClientActivity", "C: Waiting for ack.");
+                    BufferedReader br = new BufferedReader(new InputStreamReader(appState.getSocket().getInputStream()));
+                    if (br.readLine() != null)
+                    	{
+                    	appState.setResponse(br.readLine());
+                    	Log.d("ClientActivity", appState.getResponse());
+                    	}
+                } catch (Exception e) {
+                    Log.e("ClientActivity", "S: Error", e);
+                }
+            }
+            Log.d("ClientActivity", "C: Closed.");
         }
 	}
 }

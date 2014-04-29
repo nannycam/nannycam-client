@@ -20,7 +20,7 @@ import android.widget.ImageView;
 
 public class ViewActivity extends ActionBarActivity {
 
-	App appState = ((App)this.getApplication());
+	App appState;
 	Socket socket = appState.getSocket();
     ImageView img;
 
@@ -35,6 +35,7 @@ public class ViewActivity extends ActionBarActivity {
 	        img = (ImageView) findViewById(R.id.imageView);
 	        AsyncTask thread = new ConnectTask();
 	        thread.execute();
+        	appState = ((App)getApplication());
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
