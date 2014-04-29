@@ -23,7 +23,8 @@ public class MainActivity extends ActionBarActivity {
    private EditText et_input;
    private static final int SERVER_PORT = 8080;
    App appState;
-   Thread cThread;
+   Thread cThread;  	
+   InetAddress serverAddr = null;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -60,14 +61,30 @@ public class MainActivity extends ActionBarActivity {
 	}
 	
     public void connect(View v) {
-        cThread.run();
-        Intent loginScreen = new Intent(getApplicationContext(), LoginActivity.class);
-        while(true){
-        	if(appState.getResponse().trim().compareTo("ok") == 0){
-                Log.d("ClientActivity", "C: Got ack. Waiting for login.");
-        		startActivity(loginScreen);
-        		break;
-        	}
+        try { 
+        	serverAddr = InetAddress.getByName(((EditText)findViewById(R.id.ipInput)).toString());
+            Log.d("ClientActivity", et_input.getText().toString());
+            Log.d("ClientActivity", "C: Connecting...");
+    	} catch (Exception e) {
+        	/*new AlertDialog.Builder(MainActivity.this).setTitle("IP Address")
+        	.setMessage("Invalid IP address!")
+        	.setCancelable(false)
+        	.show();*/
+    		Log.e("ClientActivity", "C: Error", e);
+    		serverAddr = null;
+    	}
+        
+        if(serverAddr != null){
+        
+	        cThread.run();
+	        Intent loginScreen = new Intent(getApplicationContext(), LoginActivity.class);
+	        while(true){
+	        	if(appState.getResponse().trim().compareTo("ok") == 0){
+	                Log.d("ClientActivity", "C: Got ack. Waiting for login.");
+	        		startActivity(loginScreen);
+	        		break;
+	        	}
+	        }
         }
     }
 
@@ -90,21 +107,7 @@ public class MainActivity extends ActionBarActivity {
 	};
 
 	public class ClientThread implements Runnable {
-        public void run() {  	
-            InetAddress serverAddr;
-            try { 
-            	serverAddr = InetAddress.getByName(((EditText)findViewById(R.id.ipInput)).toString());
-                Log.d("ClientActivity", et_input.getText().toString());
-                Log.d("ClientActivity", "C: Connecting...");
-        	} catch (Exception e) {
-            	/*new AlertDialog.Builder(MainActivity.this).setTitle("IP Address")
-            	.setMessage("Invalid IP address!")
-            	.setCancelable(false)
-            	.show();*/
-        		Log.e("ClientActivity", "C: Error", e);
-        		serverAddr = null;
-        	}
-            if(serverAddr != null){
+        public void run() {
 	            try{
 	            	appState.setSocket(new Socket(serverAddr, SERVER_PORT));
 	            }
@@ -114,7 +117,7 @@ public class MainActivity extends ActionBarActivity {
 	            	.setCancelable(false)
 	            	.show();
 	            }
-            }
+            
             while (appState.getSocket().isConnected() && !appState.getSocket().isClosed()) {
                 try {
                     Log.d("ClientActivity", "C: Waiting for ack.");
