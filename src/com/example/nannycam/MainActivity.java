@@ -111,7 +111,6 @@ public class MainActivity extends ActionBarActivity {
                 	Toast.makeText(getApplicationContext(), "Not a valid server",Toast.LENGTH_SHORT).show();
                 	connected = false;
                 }
-                connected = true;
                 while (connected) {
                     try {
                         Log.d("ClientActivity", "C: Waiting for ack.");
